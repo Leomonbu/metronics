@@ -1,0 +1,40 @@
+.rol-empty {
+  padding: 2rem;
+}
+
+.rol-form-container {
+  max-width: 400px;
+  margin: auto;
+  background: #f4f6f8;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.rol-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rol-form input {
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.rol-form button {
+  background-color: #007bff;
+  color: white;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.rol-form button:hover {
+  background-color: #0056b3;
+}

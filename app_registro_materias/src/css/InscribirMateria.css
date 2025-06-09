@@ -1,0 +1,40 @@
+.ins-empty {
+  padding: 2rem;
+}
+
+.inscribir-form-container {
+  max-width: 500px;
+  margin: auto;
+  background: #f9f9f9;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.inscribir-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inscribir-form select {
+  padding: 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+.inscribir-form button {
+  background-color: #007bff;
+  color: white;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.inscribir-form button:hover {
+  background-color: #0056b3;
+}
