@@ -3,6 +3,9 @@
 ## Instrucciones de instalación y ejecución ##
 ### Clonar el repositorio ###
 
+![image](https://github.com/user-attachments/assets/c3d0e2bd-459e-484c-9494-ae9aad782654)
+
+
 ```bash
    git clone https://github.com/Leomonbu/pruebalink.git
  ```
