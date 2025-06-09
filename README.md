@@ -1,27 +1,28 @@
-# Desarrollo prueba tecnica
+# Proyecto registro de materias
+
+## Como funciona la aplicacion ##
+[Manual de usuario aplicacion](https://github.com/Leomonbu/metronics/blob/Suport_files/Manual%20de%20usuario.pdf)
+
+## Diagrama de base de datos ##
+![image](https://github.com/user-attachments/assets/c3d0e2bd-459e-484c-9494-ae9aad782654)
 
 ## Instrucciones de instalación y ejecución ##
 ### Clonar el repositorio ###
-
-![image](https://github.com/user-attachments/assets/c3d0e2bd-459e-484c-9494-ae9aad782654)
-
 
 ```bash
    git clone https://github.com/Leomonbu/pruebalink.git
  ```
 
-### Ejecutar con Docker ###
+### Si se desea crear como microservicio con Docker ###
 ```bash
    docker-compose up --build
 ```
 - Esto ejecuta:
-     - ProductoService en http://localhost:5120
-     - InventarioService en http://localhost:5121
+     - WSRegistro en http://localhost:5120
      - SQL Server interno accesible por ambas APIs
 
 - Acceder a Swagger UI
-     - Producto API: http://localhost:5120/swagger
-     - Inventario API: http://localhost:5121/swagger
+     - Registro API: http://localhost:5120/swagger
 
 ### Crear base de datos y tablas ###
 - Ingresar por una terminal a SQLCMD
@@ -30,44 +31,35 @@
 ```   
 - Crear la base de datos
 ```bash
-   CREATE DATABASE [dbLynk]
+   CREATE DATABASE [bdMetronics]
    GO
 ```
 - Direccionar a la base de datos
 ```bash
-   USE dbLynk
+   USE bdMetronics
    GO
 ```
-- Crear la tabla para productos
+- Crear las tablas de la aplicacion los scripts encuentran en la siguiente ruta **"\Mectronics\ServiciosRegistro\WSRegistro\Scripts"**, un ejemplo:
 ```bash
-   CREATE TABLE [dbo].[Productos](
-  	[Id_producto] [bigint] IDENTITY(1,1) NOT NULL,
-  	[nombre_producto] [varchar](80) NOT NULL,
-  	[precio_producto] [int] NOT NULL,
-   CONSTRAINT [PK_Productos] PRIMARY KEY CLUSTERED 
-   (
-	  [Id_producto] ASC
-   ) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-  ) ON [PRIMARY] 
-  GO
-```
-- Crear la tabla para inventario
-```bash
-   CREATE TABLE [dbo].[Inventario](
-	[id_producto] [bigint] NOT NULL,
-	[cantidad] [int] NOT NULL,
-   CONSTRAINT [PK_Inventario] PRIMARY KEY CLUSTERED 
-   (
-	[id_producto] ASC
-   )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-   ) ON [PRIMARY]
-  GO
-
-ALTER TABLE [dbo].[Inventario]  WITH CHECK ADD CONSTRAINT [FK_Inventario_Producto] FOREIGN KEY([id_producto])
-REFERENCES [dbo].[Productos] ([id_producto])
+  CREATE TABLE [dbo].[Estudiante](
+	[IdEstudiante] [int] IDENTITY(1,1) NOT NULL,
+	[TipoDocumento] [int] NOT NULL,
+	[DocumentoEstudiante] [bigint] NOT NULL,
+	[NombresEstudiante] [varchar](70) NOT NULL,
+	[ApellidosEstudiante] [varchar](70) NOT NULL,
+	[EmailEstudiante] [varchar](250) NOT NULL,
+	[Password_hash] [TEXT] NOT NULL,
+	[Fecha_nacimiento] [datetime] NOT NULL,
+	[IdRol][int] NOT NULL,
+	[EstadoEstudiante] [int] NOT NULL,
+	[CreoUsuario][DATETIME] DEFAULT GETDATE()
+	PRIMARY KEY (IdEstudiante),
+    FOREIGN KEY (IdRol) REFERENCES Roles(IdRol) ON DELETE CASCADE
+);
 GO
-
-ALTER TABLE [dbo].[Inventario] CHECK CONSTRAINT [FK_Inventario_Producto]
+CREATE UNIQUE INDEX idx_estudiante_email ON estudiante(EmailEstudiante);
+GO
+CREATE UNIQUE INDEX idx_estudiante_documento ON estudiante(DocumentoEstudiante);
 GO
 ```
 <br>
@@ -75,42 +67,36 @@ GO
 ## Descripción de la arquitectura ##
 
 ### Estructura general ###
-Solución con dos microservicios (dos APIs) desarrolladas en ASP.NET Core, cada una con responsabilidades distintas, contenedorizadas con Docker, y ambas conectadas a una base de datos SQL Server común.
+Solución con una APIs desarrolladas en ASP.NET Core, tiene la configuracion para dockerizar pero la aplicacion para que funcione sera local.
 
 ### Componentes principales ###
 | Componente                |    Descripcion                                          |
 |---------------------------|---------------------------------------------------------|
-| API Producto              |  Expone endpoints para la administracion de productos   |
-| API Inventario            |  Administra el inventario de los productos. Se relaciona con los productos por id_producto   |
-| Base de datos SQL Server  |  Contenedor compartido. Contiene las tablas Productos, Inventario, y sus relaciones          |
-| Docker Compose            |  Orquesta los tres contenedores (Producto API, Inventario API, SQL Server), gestionando red y dependencia   |
+| WSRegistro              |  Expone endpoints para la administracion de la aplicacion   |
+| Base de datos SQL Server  |  Administra la data de la aplicacion          |
 
-### Comunicación ###
-* Las APIs se comunican entre sí por HTTP interno usando el nombre del servicio en docker-compose como hostname.
-* Se usa HttpClient en una de las APIs para consumir la otra (por ejemplo, Inventario puede consultar Producto).
-* Se implementan API keys o autenticación para asegurar la comunicación.
+### Tecnologias y herramientas utilizadas ###
+* Backend: ASP.NET Core Web API (con Entity Framework Core)
+* Frontend: React (con React Router, Axios, Formik, etc.)
+* Base de datos: SQL Server
+* Autenticación: JWT (JSON Web Tokens)
+* Autorización: Claims + Roles
+* Logging: ILogger
+* Pruebas: xUnit + Moq + TestServer (para integración)
+* ORM: Entity Framework Core con patrón Repository
 
-### Dockerización ###
-* Cada API tiene su propio Dockerfile.
-* Un archivo docker-compose.yml define:
-    - Red compartida
-    - Contenedor de SQL Server
-    - Las dos APIs
-    - Variables de entorno y puertos expuestos
-
-### Pruebas ###
-* Se desarrollan pruebas unitarias para cada microservicio de forma separada.
+### Paquetes necesarios API ###
+* WSRegistgro :
+    	- dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+	- dotnet add package Microsoft.EntityFrameworkCore.Design
+	- dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
+	- dotnet add package Swashbuckle.AspNetCore
+	- dotnet add package FluentValidation
+	- dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+* WSRegistgro.Tests:
+	- dotnet add package Moq
+	- dotnet add package xunit
+* WSRegistgro.Integration.Tests:
+ 	- dotnet add Microsoft.AspNetCore.Mvc.Testing
+	- dotnet add Microsoft.EntityFrameworkCore.InMemory
 <br>
-
-## Decisiones técnicas y justificaciones ##
-* ASP.NET Core como Framework
-    * Decisión: Utilizar ASP.NET Core 8.0 para el desarrollo de ambas APIs.
-    * Justificación: ASP.NET Core ofrece alto rendimiento, soporte para microservicios, facilidad de integración con Docker y un ecosistema moderno para desarrollo Web API.
- 
-* Base de datos compartida en contenedor
-    * Decisión: Utilizar un solo contenedor de SQL Server accesible por ambas APIs.
-    * Justificación: Simplifica el entorno de desarrollo y garantiza consistencia en los datos durante pruebas y desarrollo. Se aplicaron esquemas y relaciones (como claves foráneas) para mantener la integridad.
-<br>
-
-
-[Manual de usuario aplicacion](https://github.com/Leomonbu/metronics/blob/Suport_files/Manual%20de%20usuario.pdf)
